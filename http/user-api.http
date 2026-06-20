@@ -1,0 +1,182 @@
+### User API — manual probes (IntelliJ / VS Code REST Client)
+#
+# Base URL comes from the `baseUri` env var defined in `http-client.env.json`
+# (placeholder) or, with the real SUT address, in `http-client.private.env.json`
+# (git-ignored). In IntelliJ pick the env in the run gutter; the real URL is never committed.
+#
+# `{{$timestamp}}` makes username/email unique per send so repeats stay independent.
+# Cases marked (BUG-xx) are expected to expose a defect — see docs/defects.md.
+
+### Health check  ->  {"greeting":"..."}
+GET {{baseUri}}/
+
+### TC-01  Create user — valid (multipart FormData)  ->  201, user without password
+POST {{baseUri}}/user/create
+Content-Type: multipart/form-data; boundary=Boundary
+
+--Boundary
+Content-Disposition: form-data; name="username"
+
+user_{{$timestamp}}
+--Boundary
+Content-Disposition: form-data; name="email"
+
+user_{{$timestamp}}@example.com
+--Boundary
+Content-Disposition: form-data; name="password"
+
+Secret123
+--Boundary--
+
+### TC-04  Create — username missing  ->  400
+POST {{baseUri}}/user/create
+Content-Type: multipart/form-data; boundary=Boundary
+
+--Boundary
+Content-Disposition: form-data; name="email"
+
+nouser_{{$timestamp}}@example.com
+--Boundary
+Content-Disposition: form-data; name="password"
+
+Secret123
+--Boundary--
+
+### TC-05  Create — username empty ("")  ->  400
+POST {{baseUri}}/user/create
+Content-Type: multipart/form-data; boundary=Boundary
+
+--Boundary
+Content-Disposition: form-data; name="username"
+
+--Boundary
+Content-Disposition: form-data; name="email"
+
+empty_{{$timestamp}}@example.com
+--Boundary
+Content-Disposition: form-data; name="password"
+
+Secret123
+--Boundary--
+
+### TC-13  Create — all required fields missing  ->  400 (ideally list of all errors; BUG-06 = first only)
+POST {{baseUri}}/user/create
+Content-Type: multipart/form-data; boundary=Boundary
+
+--Boundary
+Content-Disposition: form-data; name="_"
+
+--Boundary--
+
+### TC-09  Create — malformed email  ->  400 (BUG-02: accepted with 200)
+POST {{baseUri}}/user/create
+Content-Type: multipart/form-data; boundary=Boundary
+
+--Boundary
+Content-Disposition: form-data; name="username"
+
+bademail_{{$timestamp}}
+--Boundary
+Content-Disposition: form-data; name="email"
+
+not-an-email
+--Boundary
+Content-Disposition: form-data; name="password"
+
+Secret123
+--Boundary--
+
+### TC-12  Create — password too short  ->  400 (BUG-03: accepted with 200)
+POST {{baseUri}}/user/create
+Content-Type: multipart/form-data; boundary=Boundary
+
+--Boundary
+Content-Disposition: form-data; name="username"
+
+shortpw_{{$timestamp}}
+--Boundary
+Content-Disposition: form-data; name="email"
+
+shortpw_{{$timestamp}}@example.com
+--Boundary
+Content-Disposition: form-data; name="password"
+
+x
+--Boundary--
+
+### TC-07/TC-10  Create — duplicate seed (send TWICE: 1st created, 2nd must be rejected 400)
+POST {{baseUri}}/user/create
+Content-Type: multipart/form-data; boundary=Boundary
+
+--Boundary
+Content-Disposition: form-data; name="username"
+
+dup_user_fixed
+--Boundary
+Content-Disposition: form-data; name="email"
+
+dup_fixed@example.com
+--Boundary
+Content-Disposition: form-data; name="password"
+
+Secret123
+--Boundary--
+
+### TC-14  Create — unknown field role=admin  ->  no 500, no DB internals (BUG-04: 500 leaking SQL/schema)
+POST {{baseUri}}/user/create
+Content-Type: multipart/form-data; boundary=Boundary
+
+--Boundary
+Content-Disposition: form-data; name="username"
+
+extra_{{$timestamp}}
+--Boundary
+Content-Disposition: form-data; name="email"
+
+extra_{{$timestamp}}@example.com
+--Boundary
+Content-Disposition: form-data; name="password"
+
+Secret123
+--Boundary
+Content-Disposition: form-data; name="role"
+
+admin
+--Boundary--
+
+### TC-16  Create — injection strings as data  ->  stored as data, no 500/execution
+POST {{baseUri}}/user/create
+Content-Type: multipart/form-data; boundary=Boundary
+
+--Boundary
+Content-Disposition: form-data; name="username"
+
+' OR 1=1;--<script>alert(1)</script>
+--Boundary
+Content-Disposition: form-data; name="email"
+
+inject_{{$timestamp}}@example.com
+--Boundary
+Content-Disposition: form-data; name="password"
+
+Secret123
+--Boundary--
+
+### TC-15  Create — JSON body instead of multipart  ->  400/415 by contract (BUG-10: accepted)
+POST {{baseUri}}/user/create
+Content-Type: application/json
+
+{
+  "username": "json_{{$timestamp}}",
+  "email": "json_{{$timestamp}}@example.com",
+  "password": "Secret123"
+}
+
+### TC-18  Wrong HTTP method on /user/create (GET)  ->  404/405
+GET {{baseUri}}/user/create
+
+### TC-20  List users  ->  200, application/json, JSON array (TC-21: items must NOT contain password — BUG-01)
+GET {{baseUri}}/user/get
+
+### TC-23  POST on /user/get (GET-only route)  ->  404/405 (BUG-05: 200, returns the list)
+POST {{baseUri}}/user/get

@@ -1,0 +1,19 @@
+services:
+  # Runs the green regression suite; results land in ./build/allure-results on the host.
+  tests:
+    build: .
+    # Override the system under test if needed: BASE_URI=http://host:port docker compose up tests
+    environment:
+      - BASE_URI=${BASE_URI:-}
+    volumes:
+      - ./build:/app/build
+
+  # Serves the Allure report at http://localhost:5050 from existing results.
+  report:
+    image: frankescobar/allure-docker-service:latest
+    environment:
+      CHECK_RESULTS_EVERY_SECONDS: 3
+    ports:
+      - "5050:5050"
+    volumes:
+      - ./build/allure-results:/app/allure-results
