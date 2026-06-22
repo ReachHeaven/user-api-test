@@ -33,20 +33,22 @@ baseline to assert as "correct".
 - **REST-assured** — HTTP client / API assertions (multipart support)
 - **Allure** (`allure-junit5`, `allure-rest-assured`) — reporting with auto request/response attachments
 - **Hamcrest / AssertJ** — assertions
+- **Gson** — JSON ↔ POGO mapping for REST-assured `.as<T>()`
 - **Docker** — containerized run
 - **GitHub Actions** — `workflow_dispatch` (one-click) + `push`, publishes Allure to GitHub Pages
 
 ## Layout
 
 ```
-docs/                 Test cases, checklist, prioritization (RU — reviewer-facing)
+docs/                 test-cases.md + defects.md (RU — reviewer-facing)
 .claude/rules/        Working rules (test design, Kotlin style)
 .claude/skills/       code-review skill
 src/test/kotlin/userapi/   Test code (layered)
   config/             environment settings (base URI) — single source of truth
-  model/              request payloads + data factories
+  model/              request payloads, response POGOs, data factories
   client/             BaseClient (shared spec + Allure) and UserApi service
   tests/              tests by feature (UserCreate, UserGet, ...)
+http/                 manual API probes (.http)
 .github/workflows/    CI
 Dockerfile, docker-compose.yml
 ```

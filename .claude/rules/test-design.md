@@ -4,10 +4,9 @@ How test cases are derived, written, and prioritized in this repo.
 
 ## Technique is a design activity, not a case field
 
-ISTQB techniques (EP, BVA, decision tables, state transition) are used to **derive** cases.
-They belong in the **test-design section** and the **coverage matrix**, never as a column in
-the test case itself. A test case carries only: `ID`, area, title, preconditions, test data,
-steps, expected result, priority, severity, automate?.
+ISTQB techniques (EP, BVA, decision tables, state transition) are used to **derive** cases —
+a design activity, never a column in the case table itself. A test case carries only: `ID`, area,
+title, preconditions, test data, steps, expected result, priority, severity.
 
 ## Techniques to apply
 
@@ -24,13 +23,11 @@ steps, expected result, priority, severity, automate?.
 - **Contract** — status code, `Content-Type`, response schema/shape.
 - **Security** — password must never be returned (plaintext or hash) in any response.
 
-Maintain a **coverage matrix** (area/technique → case IDs) so gaps and traceability are visible.
-
 ## Expected result = spec, not observed behavior
 
-Each case states the expected result **per the implied spec**, plus a separate
-"вероятно фактически / подозрение на дефект" note. When the API contradicts the spec, that is
-a **defect** — the case still asserts the correct behavior. Do not document the bug as expected.
+Each case states the expected result **per the implied spec**. When the API contradicts the spec,
+that is a **defect** — recorded in `docs/defects.md`; the case still asserts the correct behavior.
+Do not document the bug as expected.
 
 ## Prioritization model (graded — give it special attention)
 
@@ -44,7 +41,6 @@ a **defect** — the case still asserts the correct behavior. Do not document th
 | **P3** | Low — rare edge / cosmetic | unicode names, very large payloads, ordering nuances |
 
 Rules:
-- Justify **every P0/P1** with a one-line rationale.
 - Automate the **P0/P1** set first; state explicitly what is left manual/documented and why.
 - Priority reflects risk, not ease of automation.
 

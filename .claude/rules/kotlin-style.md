@@ -16,8 +16,8 @@ zero ceremony. Minimalism is a hard requirement of this assignment.
 
 - **No dead abstraction.** Don't add a base class, wrapper, or "framework" layer until two
   real cases need it. YAGNI.
-- **Wire shared setup once** — one base-URI + multipart `RequestSpecification` and the Allure
-  filter configured in a single `support/` place, reused by all tests.
+- **Wire shared setup once** — base URI in `config/Config.kt`, the multipart `RequestSpecification`
+  and Allure filter in `client/BaseClient.kt`, reused by all tests.
 - **Data-driven over copy-paste** — use `@ParameterizedTest` + `@MethodSource`/`@CsvSource`
   for families of inputs (validation, boundaries) instead of near-duplicate methods.
 - Keep helpers tiny and obvious; if a helper needs a comment to explain *what*, inline it.
