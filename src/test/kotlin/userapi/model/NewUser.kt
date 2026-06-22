@@ -2,7 +2,6 @@ package userapi.model
 
 import java.util.UUID
 
-
 data class NewUser(
     val username: String? = null,
     val email: String? = null,

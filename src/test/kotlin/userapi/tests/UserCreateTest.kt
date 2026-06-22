@@ -20,7 +20,6 @@ import userapi.model.asCreateResult
 @Epic("User API")
 @Feature("Create user")
 class UserCreateTest {
-
     private val api = UserApi()
 
     @Test

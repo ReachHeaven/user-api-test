@@ -17,7 +17,6 @@ import userapi.model.asUsers
 @Epic("User API")
 @Feature("List users")
 class UserGetTest {
-
     private val api = UserApi()
 
     @Test

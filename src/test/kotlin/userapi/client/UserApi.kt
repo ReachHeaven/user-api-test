@@ -5,7 +5,6 @@ import io.restassured.response.Response
 import userapi.model.NewUser
 
 class UserApi : BaseClient() {
-
     fun create(user: NewUser, extra: Map<String, String> = emptyMap()): Response =
         given(request).apply {
             user.username?.let { multiPart("username", it) }
